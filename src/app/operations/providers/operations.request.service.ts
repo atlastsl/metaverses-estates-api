@@ -84,7 +84,15 @@ export class OperationsRequestService {
         payload: OperationsListRequestDto,
     ): Promise<OperationsListResponseDto> {
         const { total, operations } =
-            await this.operationsUtilsService.getOperationsHistory(payload);
+            await this.operationsUtilsService.getOperationsHistory(
+                payload.sort,
+                payload.page,
+                payload.take,
+                payload.operation_type,
+                payload.transaction_type,
+                payload.collection,
+                payload.search,
+            );
         return {
             pagination: PaginationResponseDto.responseDto(payload, total),
             operations,
@@ -94,18 +102,21 @@ export class OperationsRequestService {
     async operationDetails(
         payload: AssetOperationDetailsRequestDto,
     ): Promise<OperationDetailsResponseDto> {
-        const operation =
-            await this.operationsUtilsService.getOperationDetails(payload);
+        const operation = await this.operationsUtilsService.getOperationDetails(
+            payload.operation_id,
+        );
         const metadataChangePayload =
-            await this.operationsUtilsService.getOperationDate(payload);
+            await this.operationsUtilsService.getOperationDate(
+                payload.operation_id,
+            );
         console.log(JSON.stringify(metadataChangePayload));
         const evolutions =
             await this.assetsMetadataUtilsService.getAssetMetadataEvolution({
                 payload: metadataChangePayload,
             });
-        const asset = await this.assetsUtilsService.assetDetails({
-            asset_id: metadataChangePayload.asset.toString(),
-        });
+        const asset = await this.assetsUtilsService.assetDetails(
+            metadataChangePayload.asset.toString(),
+        );
         return {
             operation,
             asset,

@@ -1,13 +1,9 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { Asset } from '../entities/asset.schema';
+import { Asset, AssetTypeEnum } from '../entities/asset.schema';
 import { DATABASE_CONNECTION_METAVERSES } from '../../../main/databases/databases';
 import mongoose, { HydratedDocument, Model } from 'mongoose';
-import {
-    AssetDetailsPayloadDto,
-    AssetsListRequestDto,
-    AssetSortEnum,
-} from '../dto/assets.requests.dto';
+import { AssetSortEnum } from '../dto/assets.requests.dto';
 import {
     AssetMetadataResponseDto,
     AssetResponseDto,
@@ -27,18 +23,23 @@ export class AssetsUtilsService {
     ) {}
 
     async assetsList(
-        payload: AssetsListRequestDto,
+        sort: AssetSortEnum,
+        page: number,
+        take: number,
+        collection?: string,
+        type?: AssetTypeEnum,
+        search?: string,
     ): Promise<{ total: number; assets: AssetResponseDto[] }> {
         let filterPayload: any = {};
-        if (!this.stringsHelperService.isStrEmpty(payload.collection)) {
-            filterPayload.collection = payload.collection;
+        if (collection) {
+            filterPayload.collection = collection;
         }
-        if (payload.type) {
-            filterPayload.type = payload.type;
+        if (type) {
+            filterPayload.type = type;
         }
-        if (!this.stringsHelperService.isStrEmpty(payload.search)) {
+        if (!this.stringsHelperService.isStrEmpty(search)) {
             const coordsRegex = /^(-?\d+),(-?\d+)$/;
-            const coordsRegexMatch = payload.search.match(coordsRegex);
+            const coordsRegexMatch = search.match(coordsRegex);
             if (coordsRegexMatch) {
                 const c1 = parseInt(coordsRegexMatch[1], 10);
                 const c2 = parseInt(coordsRegexMatch[2], 10);
@@ -51,7 +52,7 @@ export class AssetsUtilsService {
                 };
             } else {
                 const reg = RegExp(
-                    this.stringsHelperService.trimToEmpty(payload.search),
+                    this.stringsHelperService.trimToEmpty(search),
                     'i',
                 );
                 filterPayload = {
@@ -80,11 +81,11 @@ export class AssetsUtilsService {
             metadata: AssetMetadataResponseDto;
         }[] = [];
 
-        if (payload.sort == AssetSortEnum.Name) {
+        if (sort == AssetSortEnum.Name) {
             rawAssets = await this.assetsModel
                 .find(filterPayload)
-                .skip((payload.page - 1) * payload.take)
-                .limit(payload.take)
+                .skip((page - 1) * take)
+                .limit(take)
                 .exec();
             const assetsIds = rawAssets.map(
                 (x) => x._id as mongoose.Types.ObjectId,
@@ -102,9 +103,9 @@ export class AssetsUtilsService {
             assetsOperationsDates =
                 await this.operationsUtilsService.listAssetsOperationsDates(
                     filterPayload,
-                    payload.sort,
-                    payload.page,
-                    payload.take,
+                    sort,
+                    page,
+                    take,
                 );
             const assetsIds = assetsOperationsDates.map(
                 (x) => x.asset as mongoose.Types.ObjectId,
@@ -143,10 +144,8 @@ export class AssetsUtilsService {
         return { total, assets };
     }
 
-    async assetDetails(
-        assetPayload: AssetDetailsPayloadDto,
-    ): Promise<AssetResponseDto> {
-        const assetId = new mongoose.Types.ObjectId(assetPayload.asset_id);
+    async assetDetails(asset_id: string): Promise<AssetResponseDto> {
+        const assetId = new mongoose.Types.ObjectId(asset_id);
         const rawAsset = await this.assetsModel
             .findOne({
                 _id: assetId,

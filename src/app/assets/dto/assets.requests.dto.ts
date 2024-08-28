@@ -94,6 +94,4 @@ export class AssetDetailsPayloadDto {
     asset_id: string;
 }
 
-export class AssetMetadataHistoryAssetPayloadDto {
-
-}
+export class AssetMetadataHistoryAssetPayloadDto {}

@@ -7,6 +7,16 @@ export class UserDetailResponseDto {
     user: User;
 }
 
+export class UserPasswordResponseDto {
+    @ApiProperty({ type: String })
+    password: string;
+}
+
+export class UserWithPasswordResponseDto extends UserDetailResponseDto {
+    @ApiProperty({ type: String })
+    password: string;
+}
+
 export class UserAccessTokenResponseDto {
     @ApiProperty()
     access_token: string;

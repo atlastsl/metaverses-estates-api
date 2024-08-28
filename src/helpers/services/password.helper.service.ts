@@ -14,13 +14,13 @@ export class PasswordHelperService {
         return entered.length > 0 && compareSync(entered, encrypted);
     }
 
-    newPassword(): string {
-        return this.encrypt(
-            randomstring.generate({
-                length: 12,
-                charset: 'alphanumeric',
-                readable: false,
-            }),
-        );
+    newPassword(): { clear: string; encrypted: string } {
+        const clear: string = randomstring.generate({
+            length: 12,
+            charset: 'alphanumeric',
+            readable: false,
+        });
+        const encrypted = this.encrypt(clear);
+        return { clear, encrypted };
     }
 }

@@ -9,9 +9,9 @@ import {
     DATABASE_CONNECTION_METAVERSES,
     DATABASE_CONNECTION_USERS,
 } from './main/databases/databases';
-import { log } from 'winston';
 import { AssetsModule } from './app/assets/assets.module';
 import { OperationsModule } from './app/operations/operations.module';
+import { StakeholdersModule } from './app/stakeholders/stakeholders.module';
 
 @Module({
     imports: [
@@ -40,6 +40,7 @@ import { OperationsModule } from './app/operations/operations.module';
         UsersModule,
         AssetsModule,
         OperationsModule,
+        StakeholdersModule,
     ],
     providers: [Logger],
 })

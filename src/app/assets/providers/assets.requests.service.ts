@@ -10,7 +10,6 @@ import {
 } from '../entities/assets.dicts';
 import {
     AssetDetailsPayloadDto,
-    AssetMetadataHistoryAssetPayloadDto,
     AssetMetadataHistoryQueryPayloadDto,
     AssetsListRequestDto,
 } from '../dto/assets.requests.dto';
@@ -69,8 +68,14 @@ export class AssetsRequestsService {
     async assetsList(
         payload: AssetsListRequestDto,
     ): Promise<AssetsListResponseDto> {
-        const { total, assets } =
-            await this.assetsUtilsService.assetsList(payload);
+        const { total, assets } = await this.assetsUtilsService.assetsList(
+            payload.sort,
+            payload.page,
+            payload.take,
+            payload.collection,
+            payload.type,
+            payload.search,
+        );
         return {
             pagination: PaginationResponseDto.responseDto(payload, total),
             assets,
@@ -80,7 +85,9 @@ export class AssetsRequestsService {
     async assetDetails(
         assetPayload: AssetDetailsPayloadDto,
     ): Promise<AssetDetailsResponseDto> {
-        const asset = await this.assetsUtilsService.assetDetails(assetPayload);
+        const asset = await this.assetsUtilsService.assetDetails(
+            assetPayload.asset_id,
+        );
         return {
             asset,
         };
@@ -92,8 +99,12 @@ export class AssetsRequestsService {
     ): Promise<AssetsMetadataListResponseDto> {
         const { total, metadataList } =
             await this.assetsMetadataUtilsService.getAssetMetadataHistory(
-                params,
-                query,
+                params.asset_id,
+                query.sort,
+                query.page,
+                query.take,
+                query.metadata_category,
+                query.metadata_macro_type,
             );
         return {
             pagination: PaginationResponseDto.responseDto(query, total),
@@ -107,8 +118,12 @@ export class AssetsRequestsService {
     ): Promise<OperationsListResponseDto> {
         const { total, operations } =
             await this.operationsUtilsService.getAssetOperationsHistory(
-                asset,
-                query,
+                asset.asset_id,
+                query.sort,
+                query.page,
+                query.take,
+                query.operation_type,
+                query.transaction_type,
             );
         return {
             pagination: PaginationResponseDto.responseDto(query, total),

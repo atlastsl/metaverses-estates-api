@@ -1,16 +1,14 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { Operation } from '../entities/operation.schema';
+import {
+    Operation,
+    OperationType,
+    TransactionType,
+} from '../entities/operation.schema';
 import { DATABASE_CONNECTION_METAVERSES } from '../../../main/databases/databases';
 import mongoose, { Model } from 'mongoose';
 import { AssetSortEnum } from '../../assets/dto/assets.requests.dto';
-import {
-    AssetOperationDetailsRequestDto,
-    AssetOperationsListAssetRequestDto,
-    AssetOperationsListRequestDto,
-    OperationsListRequestDto,
-    OperationSortEnum,
-} from '../dto/operations.request.dto';
+import { OperationSortEnum } from '../dto/operations.request.dto';
 
 @Injectable()
 export class OperationsUtilsService {
@@ -172,72 +170,66 @@ export class OperationsUtilsService {
     }
 
     async getAssetOperationsHistory(
-        assetPayload: AssetOperationsListAssetRequestDto,
-        queryPayload: AssetOperationsListRequestDto,
+        asset_id: string,
+        sort: OperationSortEnum,
+        page: number,
+        take: number,
+        operation_type?: OperationType,
+        transaction_type?: TransactionType,
     ): Promise<{ total: number; operations: Operation[] }> {
-        const assetId = new mongoose.Types.ObjectId(assetPayload.asset_id);
+        const assetId = new mongoose.Types.ObjectId(asset_id);
         const filterPayload: any = { asset: assetId };
-        if (queryPayload.operation_type) {
-            filterPayload.operation_type = queryPayload.operation_type;
+        if (operation_type) {
+            filterPayload.operation_type = operation_type;
         }
-        if (queryPayload.transaction_type) {
-            filterPayload.transaction_type = queryPayload.transaction_type;
+        if (transaction_type) {
+            filterPayload.transaction_type = transaction_type;
         }
-        return this.listOperations(
-            filterPayload,
-            queryPayload.sort,
-            queryPayload.page,
-            queryPayload.take,
-        );
+        return this.listOperations(filterPayload, sort, page, take);
     }
 
     async getOperationsHistory(
-        payload: OperationsListRequestDto,
+        sort: OperationSortEnum,
+        page: number,
+        take: number,
+        operation_type?: OperationType,
+        transaction_type?: TransactionType,
+        collection?: string,
+        search?: string,
     ): Promise<{ total: number; operations: Operation[] }> {
         let filterPayload: any = {};
-        if (payload.operation_type) {
-            filterPayload.operation_type = payload.operation_type;
+        if (operation_type) {
+            filterPayload.operation_type = operation_type;
         }
-        if (payload.transaction_type) {
-            filterPayload.transaction_type = payload.transaction_type;
+        if (transaction_type) {
+            filterPayload.transaction_type = transaction_type;
         }
-        if (payload.collection) {
-            filterPayload.collection = payload.collection;
+        if (collection) {
+            filterPayload.collection = collection;
         }
-        if (payload.search) {
+        if (search) {
             filterPayload = {
                 ...filterPayload,
                 $or: [
-                    { sender: RegExp(payload.search, 'i') },
-                    { recipient: RegExp(payload.search, 'i') },
-                    { asset_contract: RegExp(payload.search, 'i') },
-                    { asset_id: RegExp(payload.search, 'i') },
+                    { sender: RegExp(search, 'i') },
+                    { recipient: RegExp(search, 'i') },
+                    { asset_contract: RegExp(search, 'i') },
+                    { asset_id: RegExp(search, 'i') },
                 ],
             };
         }
-        return this.listOperations(
-            filterPayload,
-            payload.sort,
-            payload.page,
-            payload.take,
-        );
+        return this.listOperations(filterPayload, sort, page, take);
     }
 
-    async getOperationDetails(
-        operationPayload: AssetOperationDetailsRequestDto,
-    ): Promise<Operation> {
-        const operationId = new mongoose.Types.ObjectId(
-            operationPayload.operation_id,
-        );
+    async getOperationDetails(_operationId: string): Promise<Operation> {
+        const operationId = new mongoose.Types.ObjectId(_operationId);
         return await this.operationsModel.findOne({ _id: operationId }).exec();
     }
 
     async getOperationDate(
-        operationPayload: AssetOperationDetailsRequestDto,
+        _operationId: string,
     ): Promise<{ asset: mongoose.Types.ObjectId; date: Date } | null> {
-        const operationId = new mongoose.Types.ObjectId(
-            operationPayload.operation_id,
-        );
+        const operationId = new mongoose.Types.ObjectId(_operationId);
         const operation = await this.operationsModel
             .findOne({ _id: operationId })
             .select('_id asset mvt_date date')
@@ -245,5 +237,29 @@ export class OperationsUtilsService {
         return operation != null
             ? { asset: operation.asset, date: operation.mvt_date }
             : null;
+    }
+
+    async stakeHolderOperations(
+        address: string,
+        sort: OperationSortEnum = OperationSortEnum.DateDesc,
+        page: number,
+        take: number,
+        operation_type?: OperationType,
+        transaction_type?: TransactionType,
+        collection?: string,
+    ): Promise<{ total: number; operations: Operation[] }> {
+        const filterPayload: any = {
+            $or: [{ sender: address }, { recipient: address }],
+        };
+        if (operation_type) {
+            filterPayload.operation_type = operation_type;
+        }
+        if (transaction_type) {
+            filterPayload.transaction_type = transaction_type;
+        }
+        if (collection) {
+            filterPayload.collection = collection;
+        }
+        return this.listOperations(filterPayload, sort, page, take);
     }
 }

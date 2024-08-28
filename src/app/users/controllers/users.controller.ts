@@ -16,14 +16,19 @@ import { RolesGuard } from '../providers/roles.guard';
 import {
     UserDetailResponseDto,
     UserListResponseDto,
+    UserPasswordResponseDto,
+    UserWithPasswordResponseDto,
 } from '../dto/users.responses.dto';
 import { UserRole } from '../entities/user.schema';
 import { Roles } from '../providers/auth.roles.decorator';
-import { PaginationPayloadDto, PaginationResponseDto } from '../../../main/apiutils/pagination';
 import {
-    RegisterUserDto,
+    PaginationPayloadDto,
+    PaginationResponseDto,
+} from '../../../main/apiutils/pagination';
+import {
+    RegisterUserDto, UpdatePasswordDto,
     UpdateRoleDto,
-    UpdateStatusDto,
+    UpdateStatusDto, UpdateUsernameDto,
 } from '../dto/users.requests.dto';
 import {
     ApiBearerAuth,
@@ -32,6 +37,7 @@ import {
     ApiTags,
 } from '@nestjs/swagger';
 import { IAppError } from '../../../main/errors/apperror';
+import { IsStrongPassword } from 'class-validator';
 
 @ApiTags('Users')
 @ApiResponse({
@@ -69,11 +75,11 @@ export class UsersController {
     @Patch('my-account/username')
     async changeMyUsername(
         @Req() req,
-        @Body('new_username') newUsername: string,
+        @Body() payload: UpdateUsernameDto,
     ): Promise<UserDetailResponseDto> {
         const user = await this.usersService.changeUsername(
             req.user.user_id,
-            newUsername,
+            payload.new_username,
         );
         return {
             user: user,
@@ -87,13 +93,12 @@ export class UsersController {
     @Patch('my-account/password')
     async changeMyPassword(
         @Req() req,
-        @Body('old_password') oldPassword: string,
-        @Body('new_password') newPassword: string,
+        @Body() payload: UpdatePasswordDto,
     ): Promise<UserDetailResponseDto> {
         const user = await this.usersService.changePassword(
             req.user.user_id,
-            oldPassword,
-            newPassword,
+            payload.old_password,
+            payload.new_password,
         );
         return {
             user: user,
@@ -108,10 +113,10 @@ export class UsersController {
     @Roles(UserRole.ADMIN)
     async resetPassword(
         @Param('user_id') user_id: string,
-    ): Promise<UserDetailResponseDto> {
-        const user = await this.usersService.resetPassword(user_id);
+    ): Promise<UserPasswordResponseDto> {
+        const password = await this.usersService.resetPassword(user_id);
         return {
-            user: user,
+            password,
         };
     }
 
@@ -160,14 +165,16 @@ export class UsersController {
     @Post()
     @Roles(UserRole.ADMIN)
     async registerUser(
-        registerUserDto: RegisterUserDto,
-    ): Promise<UserDetailResponseDto> {
-        const user = await this.usersService.registerUser(
+        @Body() registerUserDto: RegisterUserDto,
+    ): Promise<UserWithPasswordResponseDto> {
+        const { user, password } = await this.usersService.registerUser(
             registerUserDto.username,
             registerUserDto.role,
+            registerUserDto.password,
         );
         return {
             user: user,
+            password,
         };
     }
 

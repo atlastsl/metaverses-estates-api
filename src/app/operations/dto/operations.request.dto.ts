@@ -25,7 +25,6 @@ export class AssetOperationsListRequestDto extends PaginationPayloadDto {
         enum: Object.values(OperationType),
     })
     @IsOptional()
-    @IsString()
     @IsEnum(OperationType)
     operation_type?: OperationType;
 
@@ -35,7 +34,6 @@ export class AssetOperationsListRequestDto extends PaginationPayloadDto {
         enum: Object.values(TransactionType),
     })
     @IsOptional()
-    @IsString()
     @IsEnum(TransactionType)
     transaction_type?: TransactionType;
 }

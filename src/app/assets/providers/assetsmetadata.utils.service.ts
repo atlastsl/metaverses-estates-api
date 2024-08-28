@@ -1,16 +1,15 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { AssetMetadata } from '../entities/assetmetadata.schema';
+import {
+    AssetMetadata,
+    AssetMetadataCategoryEnum,
+    AssetMetadataMacroTypeEnum,
+} from '../entities/assetmetadata.schema';
 import { DATABASE_CONNECTION_METAVERSES } from '../../../main/databases/databases';
 import mongoose, { Model } from 'mongoose';
 import { MapMacro } from '../entities/mapmacro.schema';
 import { AssetMetadataResponseDto } from '../dto/assets.responses.dto';
-import {
-    AssetDetailsPayloadDto,
-    AssetMetadataHistoryAssetPayloadDto,
-    AssetMetadataHistoryQueryPayloadDto,
-    AssetMetadataSortEnum,
-} from '../dto/assets.requests.dto';
+import { AssetMetadataSortEnum } from '../dto/assets.requests.dto';
 
 @Injectable()
 export class AssetsMetadataUtilsService {
@@ -87,14 +86,18 @@ export class AssetsMetadataUtilsService {
     }
 
     async getAssetMetadataHistory(
-        params: AssetDetailsPayloadDto,
-        query: AssetMetadataHistoryQueryPayloadDto,
+        asset_id: string,
+        sort: AssetMetadataSortEnum,
+        page: number,
+        take: number,
+        metadata_category: AssetMetadataCategoryEnum,
+        metadata_macro_type?: AssetMetadataMacroTypeEnum,
     ): Promise<{ total: number; metadataList: AssetMetadataResponseDto[] }> {
-        const assetId = new mongoose.Types.ObjectId(params.asset_id);
+        const assetId = new mongoose.Types.ObjectId(asset_id);
         const filterPayload = {
             asset: assetId,
-            category: query.metadata_category,
-            macro_type: query.metadata_macro_type,
+            category: metadata_category,
+            macro_type: metadata_macro_type,
         };
         const total = await this.assetsMetadataModel
             .countDocuments(filterPayload)
@@ -103,10 +106,10 @@ export class AssetsMetadataUtilsService {
             .find(filterPayload)
             .populate('macro', '_id name slug')
             .sort({
-                date: query.sort === AssetMetadataSortEnum.DateDesc ? -1 : 1,
+                date: sort === AssetMetadataSortEnum.DateDesc ? -1 : 1,
             })
-            .skip((query.page - 1) * query.take)
-            .limit(query.take)
+            .skip((page - 1) * take)
+            .limit(take)
             .exec();
         const metadataList: AssetMetadataResponseDto[] = [];
         for (const metadataItem of metadataHistory) {

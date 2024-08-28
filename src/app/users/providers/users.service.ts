@@ -25,11 +25,12 @@ export class UsersService {
             .findOne({ username: 'admin' })
             .exec();
         if (!superAdmin) {
-            const superAdmin = await this.registerUser(
+            const res = await this.registerUser(
                 'admin',
                 UserRole.ADMIN,
                 '000000',
             );
+            const superAdmin = res.user;
             this.logger.log(
                 `User ${superAdmin.username} {Super Admin} successfully registered !`,
             );
@@ -89,15 +90,16 @@ export class UsersService {
         return this.returnUserByUserId(userId);
     }
 
-    async resetPassword(userId: string): Promise<User> {
+    async resetPassword(userId: string): Promise<string> {
         const user = await this.userModel.findOne({ user_id: userId }).exec();
         if (!user) {
             throw new BadRequestException(UserErrors['USER_NOT_FOUND']);
         }
-        user.password = this.passwordHelperService.newPassword();
+        const { clear, encrypted } = this.passwordHelperService.newPassword();
+        user.password = encrypted;
         user.updated_at = new Date();
         await user.save();
-        return this.returnUserByUserId(userId);
+        return clear;
     }
 
     async changeUserRole(userId: string, newRole: UserRole): Promise<User> {
@@ -129,7 +131,7 @@ export class UsersService {
         username: string,
         role: UserRole,
         password?: string,
-    ): Promise<User> {
+    ): Promise<{ user: User; password: string }> {
         const existing = await this.userModel
             .findOne({ username: username })
             .exec();
@@ -141,15 +143,25 @@ export class UsersService {
         const user = new this.userModel();
         user.user_id = this.idsHelperService.newShortId();
         user.username = username;
-        user.password = password
-            ? this.passwordHelperService.encrypt(password)
-            : this.passwordHelperService.newPassword();
+        let returnPassword = '';
+        if (password) {
+            user.password = this.passwordHelperService.encrypt(password);
+            returnPassword = password;
+        } else {
+            const { clear, encrypted } =
+                this.passwordHelperService.newPassword();
+            user.password = encrypted;
+            returnPassword = clear;
+        }
         user.role = role;
         user.status = UserStatus.ACTIVE;
         user.created_at = new Date();
         user.updated_at = new Date();
         await user.save();
-        return this.returnUserByUserId(user.user_id);
+        return {
+            user: await this.returnUserByUsername(username),
+            password: returnPassword,
+        };
     }
 
     async listAllUsers(
