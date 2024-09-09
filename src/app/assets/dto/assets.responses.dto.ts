@@ -6,7 +6,7 @@ import {
     AssetUrl,
 } from '../entities/asset.schema';
 import {
-    AssetMetadataCategoryEnum,
+    AssetMetadataCategoryEnum, AssetMetadataDataTypeEnum,
     AssetMetadataMacroTypeEnum,
 } from '../entities/assetmetadata.schema';
 import { IDisplayText, OIDictionary } from '../../../main/types/types';
@@ -26,6 +26,13 @@ export class AssetMetadataResponseDto {
         enum: Object.values(AssetMetadataMacroTypeEnum),
     })
     macro_type?: AssetMetadataMacroTypeEnum;
+
+    @ApiProperty({
+        description: 'Asset Metadata Value data type',
+        required: true,
+        enum: Object.values(AssetMetadataDataTypeEnum),
+    })
+    data_type: AssetMetadataDataTypeEnum;
 
     @ApiProperty({
         description: 'Asset Metadata related Macro type Params',
@@ -63,6 +70,7 @@ export class AssetMetadataResponseDto {
         responseDto.macro_name = assetMetadata.macro?.name;
         responseDto.macro_type_params = assetMetadata.macro_type_params;
         responseDto.value = assetMetadata.value;
+        responseDto.data_type = assetMetadata.data_type;
         if (!forAssetsList) {
             responseDto.date = assetMetadata.date;
             responseDto.operations = (assetMetadata.operations || []).map(

@@ -52,6 +52,7 @@ export class OperationsUtilsService {
 
     async listAssetsOperationsDates(
         filterPayload: any,
+        operationsFilterPayload: any,
         sort: AssetSortEnum,
         page: number,
         take: number,
@@ -73,7 +74,7 @@ export class OperationsUtilsService {
             );
             const matchPipeline = [
                 {
-                    $match: nFilterPayload,
+                    $match: { ...nFilterPayload, ...operationsFilterPayload },
                 },
             ];
             pipeline = pipeline.concat(matchPipeline);
@@ -119,11 +120,15 @@ export class OperationsUtilsService {
 
     async getAssetsOperationsDates(
         assetsIds: mongoose.Types.ObjectId[],
+        operationsFilterPayload: any,
     ): Promise<any[]> {
         return this.operationsModel
             .aggregate([
                 {
-                    $match: { asset: { $in: assetsIds } },
+                    $match: {
+                        asset: { $in: assetsIds },
+                        ...operationsFilterPayload,
+                    },
                 },
                 {
                     $project: {
@@ -196,6 +201,8 @@ export class OperationsUtilsService {
         transaction_type?: TransactionType,
         collection?: string,
         search?: string,
+        date_max?: string,
+        date_min?: string,
     ): Promise<{ total: number; operations: Operation[] }> {
         let filterPayload: any = {};
         if (operation_type) {
@@ -206,6 +213,20 @@ export class OperationsUtilsService {
         }
         if (collection) {
             filterPayload.collection = collection;
+        }
+        if (date_max) {
+            if (!filterPayload.max_date) {
+                filterPayload.max_date = {};
+            }
+            const uam = new Date(date_max);
+            uam.setUTCDate(uam.getUTCDate() + 1);
+            filterPayload.mvt_date['$lt'] = uam;
+        }
+        if (date_min) {
+            if (!filterPayload.mvt_date) {
+                filterPayload.mvt_date = {};
+            }
+            filterPayload.mvt_date['$gte'] = new Date(date_min);
         }
         if (search) {
             filterPayload = {

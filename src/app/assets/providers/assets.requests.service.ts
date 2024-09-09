@@ -75,6 +75,8 @@ export class AssetsRequestsService {
             payload.collection,
             payload.type,
             payload.search,
+            payload.updated_at_max,
+            payload.updated_at_min,
         );
         return {
             pagination: PaginationResponseDto.responseDto(payload, total),

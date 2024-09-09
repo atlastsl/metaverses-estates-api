@@ -12,7 +12,7 @@ import {
     ApiResponse,
     ApiTags,
 } from '@nestjs/swagger';
-import { IAppError } from '../../../main/errors/apperror';
+import { IAppErrorDto } from '../../../main/errors/apperror';
 import { StakeholdersRequestService } from '../providers/stakeholders.request.service';
 import {
     StakeholdersListRequestDto,
@@ -29,11 +29,11 @@ import { OperationsListResponseDto } from '../../operations/dto/operations.respo
 @ApiTags('Stakeholders')
 @ApiResponse({
     status: '4XX',
-    type: IAppError,
+    type: IAppErrorDto,
 })
 @ApiResponse({
     status: '5XX',
-    type: IAppError,
+    type: IAppErrorDto,
 })
 @ApiBearerAuth()
 @Controller('stakeholders')

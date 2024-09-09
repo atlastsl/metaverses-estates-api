@@ -32,7 +32,8 @@ export class AppErrorsHandler implements ExceptionFilter {
             url,
             cause,
         );
-        httpAdapter.reply(ctx.getResponse(), responseBody, httpStatusCode);
+        const errResponse = { error: responseBody };
+        httpAdapter.reply(ctx.getResponse(), errResponse, httpStatusCode);
     }
 
     buildErrorPayload(

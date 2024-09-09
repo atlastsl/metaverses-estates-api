@@ -92,6 +92,8 @@ export class OperationsRequestService {
                 payload.transaction_type,
                 payload.collection,
                 payload.search,
+                payload.date_max,
+                payload.date_min,
             );
         return {
             pagination: PaginationResponseDto.responseDto(payload, total),

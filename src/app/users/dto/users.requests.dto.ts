@@ -1,4 +1,10 @@
-import { IsEnum, IsNotEmpty, IsOptional, IsString, IsStrongPassword } from 'class-validator';
+import {
+    IsEnum,
+    IsNotEmpty,
+    IsOptional,
+    IsString,
+    IsStrongPassword,
+} from 'class-validator';
 import { UserRole, UserStatus } from '../entities/user.schema';
 import { ApiProperty } from '@nestjs/swagger';
 

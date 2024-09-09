@@ -1,6 +1,6 @@
 import { PaginationPayloadDto } from '../../../main/apiutils/pagination';
 import { ApiProperty } from '@nestjs/swagger';
-import { IsEnum, IsMongoId, IsOptional, IsString } from 'class-validator';
+import { IsDateString, IsEnum, IsMongoId, IsOptional, IsString } from 'class-validator';
 import { OperationType, TransactionType } from '../entities/operation.schema';
 
 export enum OperationSortEnum {
@@ -54,6 +54,22 @@ export class OperationsListRequestDto extends AssetOperationsListRequestDto {
     @IsOptional()
     @IsString()
     search?: string;
+
+    @ApiProperty({
+        description: 'Filter by operation date, Max value',
+        required: false,
+    })
+    @IsOptional()
+    @IsDateString()
+    date_max?: string;
+
+    @ApiProperty({
+        description: 'Filter by operation date, Min value',
+        required: false,
+    })
+    @IsOptional()
+    @IsDateString()
+    date_min?: string;
 }
 
 export class AssetOperationsListAssetRequestDto {

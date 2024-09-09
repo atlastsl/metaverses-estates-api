@@ -12,7 +12,7 @@ import {
     ApiResponse,
     ApiTags,
 } from '@nestjs/swagger';
-import { IAppError } from '../../../main/errors/apperror';
+import { IAppErrorDto } from '../../../main/errors/apperror';
 import { OperationsRequestService } from '../providers/operations.request.service';
 import {
     OperationDetailsResponseDto,
@@ -29,11 +29,11 @@ import {
 @ApiTags('Operations')
 @ApiResponse({
     status: '4XX',
-    type: IAppError,
+    type: IAppErrorDto,
 })
 @ApiResponse({
     status: '5XX',
-    type: IAppError,
+    type: IAppErrorDto,
 })
 @ApiBearerAuth()
 @Controller('operations')

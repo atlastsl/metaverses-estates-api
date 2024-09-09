@@ -29,7 +29,24 @@ export class AssetsUtilsService {
         collection?: string,
         type?: AssetTypeEnum,
         search?: string,
+        updated_at_max?: string,
+        updated_at_min?: string,
     ): Promise<{ total: number; assets: AssetResponseDto[] }> {
+        const operationsFilterPayload: any = {};
+        if (updated_at_max) {
+            if (!operationsFilterPayload.mvt_date) {
+                operationsFilterPayload.mvt_date = {};
+            }
+            const uam = new Date(updated_at_max);
+            uam.setUTCDate(uam.getUTCDate() + 1);
+            operationsFilterPayload.mvt_date['$lt'] = uam;
+        }
+        if (updated_at_min) {
+            if (!operationsFilterPayload.mvt_date) {
+                operationsFilterPayload.mvt_date = {};
+            }
+            operationsFilterPayload.mvt_date['$gte'] = new Date(updated_at_min);
+        }
         let filterPayload: any = {};
         if (collection) {
             filterPayload.collection = collection;
@@ -93,6 +110,7 @@ export class AssetsUtilsService {
             assetsOperationsDates =
                 await this.operationsUtilsService.getAssetsOperationsDates(
                     assetsIds,
+                    operationsFilterPayload,
                 );
             assetsMetadataAllList =
                 await this.assetsMetadataUtilsService.getAssetCurrentMetadata(
@@ -103,6 +121,7 @@ export class AssetsUtilsService {
             assetsOperationsDates =
                 await this.operationsUtilsService.listAssetsOperationsDates(
                     filterPayload,
+                    operationsFilterPayload,
                     sort,
                     page,
                     take,
@@ -125,20 +144,24 @@ export class AssetsUtilsService {
             const assetOperationsDates = assetsOperationsDates.find(
                 (x) => x.asset.toString() === rawAsset._id.toString(),
             );
-            const assetMetadataList = assetsMetadataAllList
-                .filter((x) => x.asset.toString() === rawAsset._id.toString())
-                .map((x) => x.metadata);
-            const asset = AssetResponseDto.parseAsset(
-                rawAsset,
-                assetOperationsDates.created_at
-                    ? (assetOperationsDates.created_at as Date)
-                    : undefined,
-                assetOperationsDates.updated_at
-                    ? (assetOperationsDates.updated_at as Date)
-                    : undefined,
-                assetMetadataList,
-            );
-            assets.push(asset);
+            if (assetOperationsDates) {
+                const assetMetadataList = assetsMetadataAllList
+                    .filter(
+                        (x) => x.asset.toString() === rawAsset._id.toString(),
+                    )
+                    .map((x) => x.metadata);
+                const asset = AssetResponseDto.parseAsset(
+                    rawAsset,
+                    assetOperationsDates.created_at
+                        ? (assetOperationsDates.created_at as Date)
+                        : undefined,
+                    assetOperationsDates.updated_at
+                        ? (assetOperationsDates.updated_at as Date)
+                        : undefined,
+                    assetMetadataList,
+                );
+                assets.push(asset);
+            }
         }
 
         return { total, assets };
@@ -152,9 +175,10 @@ export class AssetsUtilsService {
             })
             .exec();
         const assetOperationsDates =
-            await this.operationsUtilsService.getAssetsOperationsDates([
-                assetId,
-            ]);
+            await this.operationsUtilsService.getAssetsOperationsDates(
+                [assetId],
+                {},
+            );
         const assetMetadataList =
             await this.assetsMetadataUtilsService.getAssetCurrentMetadata(
                 [assetId],

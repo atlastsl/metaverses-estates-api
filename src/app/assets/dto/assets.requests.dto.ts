@@ -1,6 +1,6 @@
 import { PaginationPayloadDto } from '../../../main/apiutils/pagination';
 import { ApiProperty } from '@nestjs/swagger';
-import { IsEnum, IsMongoId, IsOptional, IsString } from 'class-validator';
+import { IsDateString, IsEnum, IsMongoId, IsOptional, IsString } from 'class-validator';
 import { AssetTypeEnum } from '../entities/asset.schema';
 import {
     AssetMetadataCategoryEnum,
@@ -49,6 +49,22 @@ export class AssetsListRequestDto extends PaginationPayloadDto {
     @IsOptional()
     @IsString()
     search?: string;
+
+    @ApiProperty({
+        description: 'Filter by update date, Max value',
+        required: false,
+    })
+    @IsOptional()
+    @IsDateString()
+    updated_at_max?: string;
+
+    @ApiProperty({
+        description: 'Filter by update date, Min value',
+        required: false,
+    })
+    @IsOptional()
+    @IsDateString()
+    updated_at_min?: string;
 }
 
 export enum AssetMetadataSortEnum {

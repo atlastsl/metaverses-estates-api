@@ -22,7 +22,7 @@ export class UsersService {
 
     private async initAdmin() {
         const superAdmin = await this.userModel
-            .findOne({ username: 'admin' })
+            .findOne({ status: UserStatus.ACTIVE })
             .exec();
         if (!superAdmin) {
             const res = await this.registerUser(
@@ -182,6 +182,7 @@ export class UsersService {
         const users = await this.userModel
             .find(payload)
             .select('-__v -password')
+            .sort('-updated_at')
             .skip((pagination.page - 1) * pagination.take)
             .limit(pagination.take)
             .exec();

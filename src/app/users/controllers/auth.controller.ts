@@ -20,16 +20,16 @@ import {
     ApiResponse,
     ApiTags,
 } from '@nestjs/swagger';
-import { IAppError } from '../../../main/errors/apperror';
+import { IAppErrorDto } from '../../../main/errors/apperror';
 
 @ApiTags('Auth')
 @ApiResponse({
     status: '4XX',
-    type: IAppError,
+    type: IAppErrorDto,
 })
 @ApiResponse({
     status: '5XX',
-    type: IAppError,
+    type: IAppErrorDto,
 })
 @Controller('auth')
 export class AuthController {

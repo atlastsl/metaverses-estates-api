@@ -7,11 +7,11 @@ export const UserErrors: IAppErrorDictionary = {
         display_messages: [
             {
                 lang: 'en',
-                value: '',
+                value: 'User account does not exist. Please contact an administrator.',
             },
             {
                 lang: 'fr',
-                value: '',
+                value: 'Compte utilisateur inexistant. Veuillez contacter un administrateur.',
             },
         ],
     },
@@ -21,11 +21,11 @@ export const UserErrors: IAppErrorDictionary = {
         display_messages: [
             {
                 lang: 'en',
-                value: 'Account Suspended',
+                value: 'User account suspended. Please contact an administrator.',
             },
             {
                 lang: 'fr',
-                value: '',
+                value: 'Compte utilisateur suspendu. Veuillez contacter un administrateur.',
             },
         ],
     },
@@ -49,11 +49,11 @@ export const UserErrors: IAppErrorDictionary = {
         display_messages: [
             {
                 lang: 'en',
-                value: '',
+                value: 'You are not authorized to perform this operation.',
             },
             {
                 lang: 'fr',
-                value: '',
+                value: "Vous n'êtes pas autorisé à effectuer cette opération.",
             },
         ],
     },
@@ -63,11 +63,11 @@ export const UserErrors: IAppErrorDictionary = {
         display_messages: [
             {
                 lang: 'en',
-                value: 'Account Suspended',
+                value: 'Incorrect password.',
             },
             {
                 lang: 'fr',
-                value: '',
+                value: 'Mot de passe incorrect.',
             },
         ],
     },
@@ -77,11 +77,11 @@ export const UserErrors: IAppErrorDictionary = {
         display_messages: [
             {
                 lang: 'en',
-                value: '',
+                value: 'Invalid login session. Please log in again.',
             },
             {
                 lang: 'fr',
-                value: '',
+                value: 'Session de connexion invalide. Veuillez vous reconnecter.',
             },
         ],
     },
@@ -91,11 +91,11 @@ export const UserErrors: IAppErrorDictionary = {
         display_messages: [
             {
                 lang: 'en',
-                value: '',
+                value: 'Invalid login session. Please log in again.',
             },
             {
                 lang: 'fr',
-                value: '',
+                value: 'Session de connexion invalide. Veuillez vous reconnecter.',
             },
         ],
     },
@@ -105,11 +105,11 @@ export const UserErrors: IAppErrorDictionary = {
         display_messages: [
             {
                 lang: 'en',
-                value: '',
+                value: 'Username already associated with something else. Please choose another one.',
             },
             {
                 lang: 'fr',
-                value: '',
+                value: "Nom d'utilisateur déjà associé à un autre chose. Veuillez choisir un autre.",
             },
         ],
     },

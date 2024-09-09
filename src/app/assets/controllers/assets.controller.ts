@@ -12,7 +12,7 @@ import {
     ApiResponse,
     ApiTags,
 } from '@nestjs/swagger';
-import { IAppError } from '../../../main/errors/apperror';
+import { IAppErrorDto } from '../../../main/errors/apperror';
 import { AssetsRequestsService } from '../providers/assets.requests.service';
 import {
     AssetDetailsResponseDto,
@@ -23,7 +23,6 @@ import {
 } from '../dto/assets.responses.dto';
 import {
     AssetDetailsPayloadDto,
-    AssetMetadataHistoryAssetPayloadDto,
     AssetMetadataHistoryQueryPayloadDto,
     AssetsListRequestDto,
 } from '../dto/assets.requests.dto';
@@ -36,11 +35,11 @@ import { OperationsListResponseDto } from '../../operations/dto/operations.respo
 @ApiTags('Assets')
 @ApiResponse({
     status: '4XX',
-    type: IAppError,
+    type: IAppErrorDto,
 })
 @ApiResponse({
     status: '5XX',
-    type: IAppError,
+    type: IAppErrorDto,
 })
 @ApiBearerAuth()
 @Controller('assets')

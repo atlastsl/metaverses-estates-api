@@ -26,9 +26,11 @@ import {
     PaginationResponseDto,
 } from '../../../main/apiutils/pagination';
 import {
-    RegisterUserDto, UpdatePasswordDto,
+    RegisterUserDto,
+    UpdatePasswordDto,
     UpdateRoleDto,
-    UpdateStatusDto, UpdateUsernameDto,
+    UpdateStatusDto,
+    UpdateUsernameDto,
 } from '../dto/users.requests.dto';
 import {
     ApiBearerAuth,
@@ -36,17 +38,16 @@ import {
     ApiResponse,
     ApiTags,
 } from '@nestjs/swagger';
-import { IAppError } from '../../../main/errors/apperror';
-import { IsStrongPassword } from 'class-validator';
+import { IAppErrorDto } from '../../../main/errors/apperror';
 
 @ApiTags('Users')
 @ApiResponse({
     status: '4XX',
-    type: IAppError,
+    type: IAppErrorDto,
 })
 @ApiResponse({
     status: '5XX',
-    type: IAppError,
+    type: IAppErrorDto,
 })
 @ApiBearerAuth()
 @Controller('users')
@@ -106,7 +107,7 @@ export class UsersController {
     }
 
     @ApiOkResponse({
-        type: UserDetailResponseDto,
+        type: UserPasswordResponseDto,
     })
     @HttpCode(HttpStatus.ACCEPTED)
     @Patch(':user_id/password')
@@ -117,6 +118,25 @@ export class UsersController {
         const password = await this.usersService.resetPassword(user_id);
         return {
             password,
+        };
+    }
+
+    @ApiOkResponse({
+        type: UserDetailResponseDto,
+    })
+    @HttpCode(HttpStatus.ACCEPTED)
+    @Patch(':user_id/username')
+    @Roles(UserRole.ADMIN)
+    async changeUsername(
+        @Param('user_id') user_id: string,
+        @Body() payload: UpdateUsernameDto,
+    ): Promise<UserDetailResponseDto> {
+        const user = await this.usersService.changeUsername(
+            user_id,
+            payload.new_username,
+        );
+        return {
+            user: user,
         };
     }
 

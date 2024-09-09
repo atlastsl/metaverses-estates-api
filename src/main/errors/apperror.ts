@@ -16,6 +16,11 @@ export class IAppError {
     url?: string | null;
 }
 
+export class IAppErrorDto {
+    @ApiProperty({ type: IAppError })
+    error: IAppError;
+}
+
 export interface IAppErrorDictionary {
     [key: string]: IAppError;
 }

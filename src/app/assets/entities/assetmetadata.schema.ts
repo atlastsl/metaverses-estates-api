@@ -49,10 +49,9 @@ export class AssetMetadata {
 
     @Prop({
         required: true,
-        alias: 'data_type',
         enum: AssetMetadataDataTypeEnum,
     })
-    dataType: AssetMetadataDataTypeEnum;
+    data_type: AssetMetadataDataTypeEnum;
 
     @Prop({ required: true, type: Map, of: mongoose.Schema.Types.Mixed })
     data_type_params: Record<string, any>;
