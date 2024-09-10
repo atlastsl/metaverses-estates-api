@@ -56,7 +56,17 @@ export class OperationsUtilsService {
         sort: AssetSortEnum,
         page: number,
         take: number,
-    ): Promise<any[]> {
+    ): Promise<{ data: any[]; total: number }> {
+        let sortPayload: any = {};
+        if (sort === AssetSortEnum.NbOperationsAsc) {
+            sortPayload = { nb_ops: 1 };
+        } else if (sort === AssetSortEnum.NbOperationsDesc) {
+            sortPayload = { nb_ops: -1 };
+        } else if (sort === AssetSortEnum.CreatedAt) {
+            sortPayload = { created_at: 1 };
+        } else {
+            sortPayload = { updated_at: -1 };
+        }
         let pipeline: any[] = [
             {
                 $lookup: {
@@ -67,7 +77,10 @@ export class OperationsUtilsService {
                 },
             },
         ];
-        if (Object.keys(filterPayload).length > 0) {
+        if (
+            Object.keys(filterPayload).length > 0 ||
+            Object.keys(operationsFilterPayload).length > 0
+        ) {
             const nFilterPayload = this.normalizeAssetsFilterPayload(
                 filterPayload,
                 'assetDoc',
@@ -79,7 +92,7 @@ export class OperationsUtilsService {
             ];
             pipeline = pipeline.concat(matchPipeline);
         }
-        const endPipeline: any[] = [
+        const endPipelineBase: any[] = [
             {
                 $project: {
                     asset: 1,
@@ -91,6 +104,7 @@ export class OperationsUtilsService {
                     _id: '$asset',
                     created_at: { $min: '$mvt_date' },
                     updated_at: { $max: '$mvt_date' },
+                    nb_ops: { $sum: 1 },
                 },
             },
             {
@@ -98,14 +112,16 @@ export class OperationsUtilsService {
                     asset: '$_id',
                     created_at: 1,
                     updated_at: 1,
+                    nb_ops: 1,
                 },
             },
             {
-                $sort: {
-                    [`${sort === AssetSortEnum.CreatedAt ? 'created_at' : 'updated_at'}`]:
-                        sort === AssetSortEnum.CreatedAt ? 1 : -1,
-                },
+                $sort: sortPayload,
             },
+        ];
+        const pipelineData: any[] = [
+            ...pipeline,
+            ...endPipelineBase,
             {
                 $skip: (page - 1) * take,
             },
@@ -113,9 +129,24 @@ export class OperationsUtilsService {
                 $limit: take,
             },
         ];
-        pipeline = pipeline.concat(endPipeline);
-        console.log(JSON.stringify(pipeline, null, 2));
-        return await this.operationsModel.aggregate(pipeline).exec();
+        const pipelineTotal: any[] = [
+            ...pipeline,
+            ...endPipelineBase,
+            {
+                $group: {
+                    _id: null,
+                    total: { $sum: 1 },
+                },
+            },
+        ];
+        //pipeline = pipeline.concat(endPipeline);
+        //console.log(JSON.stringify(pipeline, null, 2));
+        //return await this.operationsModel.aggregate(pipeline).exec();
+        const data = await this.operationsModel.aggregate(pipelineData).exec();
+        const total = await this.operationsModel
+            .aggregate(pipelineTotal)
+            .exec();
+        return { data, total: total[0]?.total ?? 0 };
     }
 
     async getAssetsOperationsDates(

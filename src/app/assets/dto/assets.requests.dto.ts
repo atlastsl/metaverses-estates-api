@@ -10,6 +10,8 @@ import {
 export enum AssetSortEnum {
     CreatedAt = 'created_at',
     UpdatedAt = 'updated_at',
+    NbOperationsAsc = 'nb_operations_asc',
+    NbOperationsDesc = 'nb_operations_desc',
     Name = 'name',
 }
 
@@ -53,6 +55,7 @@ export class AssetsListRequestDto extends PaginationPayloadDto {
     @ApiProperty({
         description: 'Filter by update date, Max value',
         required: false,
+        type: Date,
     })
     @IsOptional()
     @IsDateString()
@@ -61,6 +64,7 @@ export class AssetsListRequestDto extends PaginationPayloadDto {
     @ApiProperty({
         description: 'Filter by update date, Min value',
         required: false,
+        type: Date,
     })
     @IsOptional()
     @IsDateString()

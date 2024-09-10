@@ -58,6 +58,7 @@ export class OperationsListRequestDto extends AssetOperationsListRequestDto {
     @ApiProperty({
         description: 'Filter by operation date, Max value',
         required: false,
+        type: Date,
     })
     @IsOptional()
     @IsDateString()
@@ -66,6 +67,7 @@ export class OperationsListRequestDto extends AssetOperationsListRequestDto {
     @ApiProperty({
         description: 'Filter by operation date, Min value',
         required: false,
+        type: Date,
     })
     @IsOptional()
     @IsDateString()

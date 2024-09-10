@@ -69,7 +69,10 @@ export class AssetsMetadataUtilsService {
     ): Promise<{ asset: string; metadata: AssetMetadataResponseDto }[]> {
         const pipeline = [
             {
-                $match: { asset: assetIds[0] },
+                $match: {
+                    asset: { $in: assetIds },
+                    category: { $ne: AssetMetadataCategoryEnum.Lands },
+                },
             },
             {
                 $group: {

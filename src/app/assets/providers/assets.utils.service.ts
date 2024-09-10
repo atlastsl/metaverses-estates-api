@@ -88,9 +88,7 @@ export class AssetsUtilsService {
                 };
             }
         }
-        const total = await this.assetsModel
-            .countDocuments(filterPayload)
-            .exec();
+        let total = 0;
         let rawAssets: HydratedDocument<any>[] = [];
         let assetsOperationsDates: any[] = [];
         let assetsMetadataAllList: {
@@ -99,6 +97,7 @@ export class AssetsUtilsService {
         }[] = [];
 
         if (sort == AssetSortEnum.Name) {
+            total = await this.assetsModel.countDocuments(filterPayload).exec();
             rawAssets = await this.assetsModel
                 .find(filterPayload)
                 .skip((page - 1) * take)
@@ -112,13 +111,13 @@ export class AssetsUtilsService {
                     assetsIds,
                     operationsFilterPayload,
                 );
-            assetsMetadataAllList =
+            /*assetsMetadataAllList =
                 await this.assetsMetadataUtilsService.getAssetCurrentMetadata(
                     assetsIds,
                     true,
-                );
+                );*/
         } else {
-            assetsOperationsDates =
+            const res =
                 await this.operationsUtilsService.listAssetsOperationsDates(
                     filterPayload,
                     operationsFilterPayload,
@@ -126,17 +125,30 @@ export class AssetsUtilsService {
                     page,
                     take,
                 );
+            assetsOperationsDates = res.data;
+            total = res.total;
             const assetsIds = assetsOperationsDates.map(
                 (x) => x.asset as mongoose.Types.ObjectId,
             );
             rawAssets = await this.assetsModel
                 .find({ _id: { $in: assetsIds } })
                 .exec();
-            assetsMetadataAllList =
+            rawAssets.sort((a, b) => {
+                const a_i: number = assetsIds.findIndex(
+                    (x) => x.toString() === a._id.toString(),
+                );
+                const b_i: number = assetsIds.findIndex(
+                    (x) => x.toString() === b._id.toString(),
+                );
+                if (a_i < b_i) return -1;
+                if (a_i > b_i) return 1;
+                return 0;
+            });
+            /*assetsMetadataAllList =
                 await this.assetsMetadataUtilsService.getAssetCurrentMetadata(
                     assetsIds,
                     true,
-                );
+                );*/
         }
 
         const assets: AssetResponseDto[] = [];
