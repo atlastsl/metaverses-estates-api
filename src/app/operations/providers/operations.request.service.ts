@@ -111,7 +111,7 @@ export class OperationsRequestService {
             await this.operationsUtilsService.getOperationDate(
                 payload.operation_id,
             );
-        console.log(JSON.stringify(metadataChangePayload));
+        //console.log(JSON.stringify(metadataChangePayload));
         const evolutions =
             await this.assetsMetadataUtilsService.getAssetMetadataEvolution({
                 payload: metadataChangePayload,

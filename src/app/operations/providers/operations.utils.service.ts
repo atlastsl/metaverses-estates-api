@@ -194,14 +194,60 @@ export class OperationsUtilsService {
         const total = await this.operationsModel
             .countDocuments(filterPayload)
             .exec();
-        const operations = await this.operationsModel
-            .find(filterPayload)
-            .sort({
-                mvt_date: sort === OperationSortEnum.DateDesc ? -1 : 1,
-            })
-            .skip((page - 1) * take)
-            .limit(take)
-            .exec();
+        let operations: Operation[] = [];
+        if (
+            sort === OperationSortEnum.DateAsc ||
+            sort === OperationSortEnum.DateDesc
+        ) {
+            operations = await this.operationsModel
+                .find(filterPayload)
+                .sort({
+                    mvt_date: sort === OperationSortEnum.DateDesc ? -1 : 1,
+                })
+                .skip((page - 1) * take)
+                .limit(take)
+                .exec();
+        } else {
+            const opIds = await this.operationsModel
+                .aggregate([
+                    {
+                        $unwind: '$amount',
+                    },
+                    {
+                        $group: {
+                            _id: '$_id',
+                            total_amount: { $sum: '$amount.value_usd' },
+                        },
+                    },
+                    {
+                        $sort: {
+                            total_amount:
+                                sort === OperationSortEnum.AmountDesc ? -1 : 1,
+                        },
+                    },
+                    {
+                        $skip: (page - 1) * take,
+                    },
+                    {
+                        $limit: take,
+                    },
+                ])
+                .exec();
+            operations = await this.operationsModel
+                .find({ _id: { $in: opIds.map((x) => x._id) } })
+                .exec();
+            operations.sort((a, b) => {
+                const a_i: number = opIds.findIndex(
+                    (x) => x._id.toString() === a._id.toString(),
+                );
+                const b_i: number = opIds.findIndex(
+                    (x) => x._id.toString() === b._id.toString(),
+                );
+                if (a_i < b_i) return -1;
+                if (a_i > b_i) return 1;
+                return 0;
+            });
+        }
         return { total, operations };
     }
 

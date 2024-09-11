@@ -6,6 +6,8 @@ import { OperationType, TransactionType } from '../entities/operation.schema';
 export enum OperationSortEnum {
     DateAsc = 'date_asc',
     DateDesc = 'date_desc',
+    AmountAsc = 'amount_asc',
+    AmountDesc = 'amount_desc',
 }
 
 export class AssetOperationsListRequestDto extends PaginationPayloadDto {

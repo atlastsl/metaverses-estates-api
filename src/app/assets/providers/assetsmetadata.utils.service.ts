@@ -134,6 +134,7 @@ export class AssetsMetadataUtilsService {
             {
                 $match: {
                     asset: payload.asset,
+                    category: { $ne: 'lands' },
                     $or: [{ date: null }, { date: { $lt: payload.date } }],
                 },
             },
@@ -156,6 +157,7 @@ export class AssetsMetadataUtilsService {
             {
                 $match: {
                     asset: payload.asset,
+                    category: { $ne: 'lands' },
                     $or: [{ date: null }, { date: { $gte: payload.date } }],
                 },
             },
