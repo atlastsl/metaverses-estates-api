@@ -292,8 +292,8 @@ export class OperationsUtilsService {
             filterPayload.collection = collection;
         }
         if (date_max) {
-            if (!filterPayload.max_date) {
-                filterPayload.max_date = {};
+            if (!filterPayload.mvt_date) {
+                filterPayload.mvt_date = {};
             }
             const uam = new Date(date_max);
             uam.setUTCDate(uam.getUTCDate() + 1);

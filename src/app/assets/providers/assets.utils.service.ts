@@ -91,7 +91,7 @@ export class AssetsUtilsService {
         let total = 0;
         let rawAssets: HydratedDocument<any>[] = [];
         let assetsOperationsDates: any[] = [];
-        let assetsMetadataAllList: {
+        const assetsMetadataAllList: {
             asset: string;
             metadata: AssetMetadataResponseDto;
         }[] = [];
