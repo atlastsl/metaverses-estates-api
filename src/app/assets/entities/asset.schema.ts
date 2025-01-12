@@ -45,6 +45,9 @@ export class Asset {
     @Prop({ required: true })
     description: string;
 
+    @Prop({ required: false })
+    blockchain?: string;
+
     @Prop({ required: true, enum: AssetTypeEnum })
     type: AssetTypeEnum;
 

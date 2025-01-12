@@ -94,7 +94,7 @@ export class Operation {
         required: false,
     })
     @Prop({ required: false })
-    chain: string;
+    blockchain: string;
 
     @ApiProperty({
         description: 'Operation Block number',
