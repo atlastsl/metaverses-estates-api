@@ -22,7 +22,8 @@ import { StakeholdersModule } from './app/stakeholders/stakeholders.module';
         MongooseModule.forRootAsync({
             imports: [ConfigModule],
             useFactory: (configService: ConfigService) => ({
-                uri: configService.get('APP_DATABASE_URL'),
+                uri: configService.get('DATABASE_URI'),
+                dbName: configService.get('APP_DATABASE_NAME'),
             }),
             inject: [ConfigService],
             connectionName: DATABASE_CONNECTION_USERS,
@@ -30,7 +31,8 @@ import { StakeholdersModule } from './app/stakeholders/stakeholders.module';
         MongooseModule.forRootAsync({
             imports: [ConfigModule],
             useFactory: (configService: ConfigService) => ({
-                uri: configService.get('METAVERSE_DATABASE_URL'),
+                uri: configService.get('DATABASE_URI'),
+                dbName: configService.get('METAVERSE_DATABASE_NAME'),
             }),
             inject: [ConfigService],
             connectionName: DATABASE_CONNECTION_METAVERSES,
